@@ -70,6 +70,22 @@ def test_mark_as_complete(api_client, task):
     assert response.status_code == status.HTTP_200_OK
     assert response.data["title"] == task.title
 
+@pytest.mark.django_db
+def test_mark_as_complete(api_client, task):
+    task.status = TaskStatus.PENDING
+    task.save()
+
+    assert Task.objects.first().status == TaskStatus.PENDING
+
+    url = reverse("tasks:task-change", args=[task.id])
+    response = api_client.patch(path=url, data={
+        'title': 'Lorem'
+    })
+    assert Task.objects.first().status == TaskStatus.PENDING
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["title"] == 'Lorem'
+    assert response.data["description"] == task.description
+
 
 @pytest.mark.django_db
 def test_delete_task(api_client, task):
@@ -78,6 +94,6 @@ def test_delete_task(api_client, task):
 
     url = reverse("tasks:task-destroy", args=[task.pk])
     response = api_client.delete(path=url)
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_204_NO_CONTENT
     assert response.data["title"] == task.title
     assert Task.objects.all().count() == 0

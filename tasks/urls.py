@@ -14,6 +14,11 @@ api_router = [
         name="task-complete",
     ),
     path(
+        "tasks/<int:pk>/change",
+        TaskAPI.as_view({"patch": "partial_update"}),
+        name="task-change",
+    ),
+    path(
         "tasks/<int:pk>/delete",
         TaskAPI.as_view({"delete": "destroy"}),
         name="task-destroy",
